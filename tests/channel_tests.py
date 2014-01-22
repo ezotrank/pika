@@ -357,7 +357,7 @@ class ChannelTests(unittest.TestCase):
         self.obj._set_state(self.obj.OPEN)
         exchange = 'basic_publish_test'
         routing_key = 'routing-key-fun'
-        body = 'This is my body'
+        body = b'This is my body'
         properties = spec.BasicProperties(content_type='text/plain')
         mandatory = False
         immediate = False
@@ -509,7 +509,7 @@ class ChannelTests(unittest.TestCase):
                          self.obj.callbacks.add.call_args_list)
 
     def test_consumer_tags(self):
-        self.assertListEqual(self.obj.consumer_tags, self.obj._consumers.keys())
+        self.assertListEqual(self.obj.consumer_tags, list(self.obj._consumers.keys()))
 
     def test_exchange_bind_raises_channel_closed(self):
         self.assertRaises(exceptions.ChannelClosed,
@@ -944,22 +944,22 @@ class ChannelTests(unittest.TestCase):
         self.obj._handle_content_frame(method_value)
         header_value = frame.Header(1, 10, spec.BasicProperties())
         self.obj._handle_content_frame(header_value)
-        body_value = frame.Body(1, '0123456789')
+        body_value = frame.Body(1, b'0123456789')
         with mock.patch.object(self.obj, '_on_deliver') as deliver:
             self.obj._handle_content_frame(body_value)
             deliver.assert_called_once_with(method_value, header_value,
-                                            '0123456789')
+                                            b'0123456789')
 
     def test_handle_content_frame_basic_get_called(self):
         method_value = frame.Method(1, spec.Basic.GetOk('ctag0', 1))
         self.obj._handle_content_frame(method_value)
         header_value = frame.Header(1, 10, spec.BasicProperties())
         self.obj._handle_content_frame(header_value)
-        body_value = frame.Body(1, '0123456789')
+        body_value = frame.Body(1, b'0123456789')
         with mock.patch.object(self.obj, '_on_getok') as getok:
             self.obj._handle_content_frame(body_value)
             getok.assert_called_once_with(method_value, header_value,
-                                          '0123456789')
+                                          b'0123456789')
 
     def test_handle_content_frame_basic_return_called(self):
         method_value = frame.Method(1, spec.Basic.Return(999, 'Reply Text',
@@ -968,11 +968,11 @@ class ChannelTests(unittest.TestCase):
         self.obj._handle_content_frame(method_value)
         header_value = frame.Header(1, 10, spec.BasicProperties())
         self.obj._handle_content_frame(header_value)
-        body_value = frame.Body(1, '0123456789')
+        body_value = frame.Body(1, b'0123456789')
         with mock.patch.object(self.obj, '_on_return') as basic_return:
             self.obj._handle_content_frame(body_value)
             basic_return.assert_called_once_with(method_value, header_value,
-                                                 '0123456789')
+                                                 b'0123456789')
 
     def test_has_content_true(self):
         self.assertTrue(self.obj._has_content(spec.Basic.GetOk))

@@ -289,7 +289,7 @@ class Channel(object):
             raise exceptions.ChannelClosed()
         if immediate:
             LOGGER.warning('The immediate flag is deprecated in RabbitMQ')
-        if isinstance(body, unicode):
+        if isinstance(body, str):
             body = body.encode('utf-8')
         properties = properties or spec.BasicProperties()
         self._send_method(spec.Basic.Publish(exchange=exchange,
@@ -424,7 +424,7 @@ class Channel(object):
         :rtype: list
 
         """
-        return self._consumers.keys()
+        return list(self._consumers.keys())
 
     def exchange_bind(self, callback=None, destination=None, source=None,
                       routing_key='', nowait=False, arguments=None):
@@ -1121,19 +1121,8 @@ class ContentFrameDispatcher(object):
         :rtype: tuple(pika.frame.Method, pika.frame.Header, str|unicode)
 
         """
-        value = None
-        if self.force_binary:
-            value = ''.join(self._body_fragments)
-        else:
-            try:
-                value = ''.join(self._body_fragments).decode('utf-8')
-                try:
-                    value = str(value)
-                except UnicodeEncodeError:
-                    pass
-            except UnicodeDecodeError:
-                value = ''.join(self._body_fragments)
-
+        
+        value = b''.join(self._body_fragments)
         content = (self._method_frame,
                    self._header_frame,
                    value)

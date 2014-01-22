@@ -197,7 +197,7 @@ class BaseConnection(connection.Connection):
             try:
                 self.socket.do_handshake()
                 break
-            except ssl.SSLError, err:
+            except ssl.SSLError as err:
                 if err.args[0] == ssl.SSL_ERROR_WANT_READ:
                     self.event_state = self.READ
                 elif err.args[0] == ssl.SSL_ERROR_WANT_WRITE:
@@ -314,7 +314,7 @@ class BaseConnection(connection.Connection):
                 data = self.socket.recv(self._buffer_size)
         except socket.timeout:
             raise
-        except socket.error, error:
+        except socket.error as error:
             return self._handle_error(error)
 
         # Empty data, should disconnect
@@ -334,7 +334,7 @@ class BaseConnection(connection.Connection):
                 bytes_written = self.socket.send(self.outbound_buffer.popleft())
             except socket.timeout:
                 raise
-            except socket.error, error:
+            except socket.error as error:
                 return self._handle_error(error)
             total_written += bytes_written
         return total_written
